@@ -17,7 +17,7 @@ pages:
 
 all: pages blog
 
-publish:
+public:
 	cd ~/public_html/
 	chmod o+r -R .
 	rsync -av --delete . aaronsplace.co.uk:/var/www/html/

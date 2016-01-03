@@ -5,6 +5,13 @@ cd ~/public_html/blog/
 author="Aaron S. Jackson"
 
 while read -r file; do
+    if [ -a $file.md5 ]; then
+	if [ "`cat $file.md5`" == "`md5sum $file`" ]; then
+	    continue
+	fi
+    else
+	md5sum $file > $file.md5
+    fi
     hname=`basename "$file" .org `.html # html file name
     post=`cat $file` # get the post title
 
