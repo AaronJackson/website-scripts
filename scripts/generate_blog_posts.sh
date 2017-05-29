@@ -5,12 +5,14 @@ cd ~/public_html/blog/
 author="Aaron S. Jackson"
 
 while read -r file; do
-    if [ -a $file.md5 ]; then
-	if [ "`cat $file.md5`" == "`md5sum $file`" ]; then
+    if [ -a .$file.md5 ]; then
+	if [ "`cat .$file.md5`" == "`md5sum $file`" ]; then
 	    continue
+	else
+	    md5sum $file > .$file.md5
 	fi
     else
-	md5sum $file > $file.md5
+	md5sum $file > .$file.md5
     fi
     hname=`basename "$file" .org `.html # html file name
     post=`cat $file` # get the post title
@@ -19,14 +21,18 @@ while read -r file; do
     date=`echo "$post" | head | grep "#+DATE:" | cut -b9-`
     echo "Generating $title"
 
+    date="${date//\</\&lt\;}"
+    date="${date//\>/\&gt\;}"
+
     cat > $hname <<EOF
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>$title</title>
+    <title>$title - Aaron S. Jackson</title>
     <meta name="author" content="$author" />
     <link rel="stylesheet" type="text/css" href="../style.css" />
+    <meta name="viewport" content="width=device-width">
   </head>
   <body>
     <div id="preamble" class="status">
@@ -60,10 +66,12 @@ EOF
     cat >> $hname <<EOF
     </div>
     <div id="postamble" class="status">
-    <p>
-      <a href="./index.html">Blog Index</a>
-      &bull; <a href="./tags/index.html">Posts by Tag</a>
-      &bull; <a href="../index.html">Home</a></p>
+      <p>
+        <a href="./index.html">Blog Index</a>
+        &bull; <a href="./tags/index.html">Posts by Tag</a>
+        &bull; <a href="../index.html">Home</a>
+      </p>
+      <p class="small">Copyright 2007-$(date +%Y) $author (modified: $(date))</p>
     </div>
   </body>
 </html>

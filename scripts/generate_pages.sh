@@ -1,16 +1,18 @@
 #!/bin/bash
 
-cd ~/public_html/
+cd ~/public_html/$1
 
 author="Aaron S. Jackson"
 
 while read -r file; do
-    if [ -a $file.md5 ]; then
-	if [ "`cat $file.md5`" == "`md5sum $file`" ]; then
+    if [ -a .$file.md5 ]; then
+	if [ "`cat .$file.md5`" == "`md5sum $file`" ]; then
 	    continue
+	else
+	    md5sum $file > .$file.md5
 	fi
     else
-	md5sum $file > $file.md5
+	md5sum $file > .$file.md5
     fi
 
     hname=`basename "$file" .org `.html # html file name
@@ -21,12 +23,13 @@ while read -r file; do
 
     cat > $hname <<EOF
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>$title</title>
+    <title>$title - Aaron S. Jackson</title>
     <meta name="author" content="$author" />
-    <link rel="stylesheet" type="text/css" href="style.css" />
+    <link rel="stylesheet" type="text/css" href="$2style.css" />
+    <meta name="viewport" content="width=device-width">
   </head>
   <body>
     <div id="content" class="post">
@@ -40,11 +43,12 @@ EOF
 
     cat >> $hname <<EOF
     </div>
-    <div id="postamble" class="status">
+    <div id="postamble">
       <p><a href="index.html">&larr; Return Home</a></p>
+      <p class="small">Copyright 2007-$(date +%Y) $author (modified: $(date))</p>
     </div>
   </body>
 </html>
 EOF
 
-done <<< "`ls -1r *.org`"
+done <<< "`ls -1 *.org`"

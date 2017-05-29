@@ -17,12 +17,13 @@ all_tags=`echo "$all_tags" | sort | uniq | sort`
 
 cat > tags/index.html <<EOF
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Tag Index</title>
+    <title>Tag Index - Aaron s. Jackson</title>
     <meta name="author" content="Aaron S. Jackson" />
     <link rel="stylesheet" type="text/css" href="../../style.css" />
+    <meta name="viewport" content="width=device-width">
   </head>
   <body>
     <div id="preamble" class="status">
@@ -96,6 +97,7 @@ while read -r tag; do
         &bull; <a href="../index.html">Blog Index</a>
         &bull; <a href="../../index.html">Home</a>
       </p>
+      <p class="small">Copyright 2007-$(date +%Y) $author (modified: $(date))</p>
     </div>
   </body>
 </html>
@@ -109,6 +111,7 @@ cat >> tags/index.html <<EOF
       <p><a href="../index.html">Blog Index</a>
         &bull; <a href="../../index.html">Home</a>
       </p>
+      <p class="small">Copyright 2007-$(date +%Y) $author (modified: $(date))</p>
     </div>
   </body>
 </html>
