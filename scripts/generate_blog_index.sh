@@ -50,7 +50,7 @@ while read -r file; do
     modified=`echo "$post" | grep -v \#\+ | grep -oP "$datepat" | tail -n1`
     htmltitle=$title
     if [[ $modified ]]; then
-	htmltitle="$htmltitle <span class=\"small\">[update added $modified]<span>"
+	htmltitle="$htmltitle <span class=\"small\">[update added $modified]</span>"
     fi
 
     date=`echo "$post" | head | grep "^#+DATE:" | cut -b9-`

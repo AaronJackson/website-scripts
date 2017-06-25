@@ -19,6 +19,8 @@ while read -r file; do
     page=`cat $file` # get the post title
 
     title=`echo "$page" | head | grep "#+TITLE:" | cut -b10-`
+    options=`echo "$page" | head | grep "#+OPTIONS:" | cut -b12-`
+
     echo "Generating $title"
 
     cat > $hname <<EOF
