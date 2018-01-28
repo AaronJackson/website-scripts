@@ -46,7 +46,7 @@ EOF
     cat >> $hname <<EOF
     </div>
     <div id="postamble">
-      <p><a href="index.html">&larr; Return Home</a></p>
+      <p><a href="$2index.html">&larr; Return Home</a></p>
       <p class="small">Copyright 2007-$(date +%Y) $author (modified: $(date))</p>
     </div>
   </body>

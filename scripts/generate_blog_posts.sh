@@ -16,10 +16,17 @@ while read -r file; do
     fi
     hname=`basename "$file" .org `.html # html file name
     post=`cat $file` # get the post title
+    firstsen=`echo "$post" | grep -ve ^# -e "^$" | \
+    		   head -n2 | tr '\n' ' ' | recode ascii..html`
 
-    title=`echo "$post" | head | grep "#+TITLE:" | cut -b10-`
+    title=`echo "$post" | head | grep "#+TITLE:" | cut -b10- | \
+    		    recode ascii..html`
     date=`echo "$post" | head | grep "#+DATE:" | cut -b9-`
     echo "Generating $title"
+
+    img_default="../img/asj6.jpg"
+    img=`echo "$post" | head | grep "#+IMG:" | cut -b8-`
+    img=${img:=$img_default}
 
     date="${date//\</\&lt\;}"
     date="${date//\>/\&gt\;}"
@@ -33,6 +40,11 @@ while read -r file; do
     <meta name="author" content="$author" />
     <link rel="stylesheet" type="text/css" href="../style.css" />
     <meta name="viewport" content="width=device-width">
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:site" content="@Limes102" />
+    <meta name="twitter:title" content="$title" />
+    <meta name="twitter:description" content="$firstsen" />
+    <meta name="twitter:image" content="https://aaronsplace.co.uk/blog/$img" />
   </head>
   <body>
     <div id="preamble" class="status">
@@ -56,6 +68,22 @@ EOF
     tags=`echo "$post" | head | grep "#+FILETAGS:" | cut -b13-`
     tags=`echo "$tags" | tr ':' '\n'` # separate tags
     tags=`echo "$tags" | grep -ve '^$'` # remove empty lines
+    maintag=`echo "$tags" | head -n1`
+
+    related=$(grep -l "^\#+FILETAGS: :$maintag:" *.org | grep -v $file)
+    echo "$related" | wc -l
+    if [[ $(echo "$related" | wc -l) -gt 0 ]]; then
+	echo "<p>Related posts:</p>" >> $hname
+	echo "<ul>" >> $hname
+	echo "$related" \
+	    | sort -nr | head -n4 \
+	    | while read rel; do
+	    rtitle=$(head $rel | grep "#+TITLE:" | cut -b10-)
+	    rlink=$(echo $rel | sed 's/.org$/.html/')
+	    echo "<li><a href=\"$rlink\">$rtitle</a></li>" >> $hname
+	done
+	echo "</ul>" >> $hname
+    fi
 
     echo "<p class=\"post-tags\">Tags: " >> $hname
     while read -r tag; do
