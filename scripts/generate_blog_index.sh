@@ -35,6 +35,17 @@ cat > index.html <<EOF
     </div>
     <div id="content" class="post">
       <h1>Aaron S. Jackson - Blog</h1>
+      <p>
+
+	This blog is mainly for me to post things which I can refer
+	back to, or share with friends/family if appropriate, but you
+	are welcome to browse. Quite often I post short snippets of
+	code or scripts - these can be used and modified freely
+	(assume MIT License), but a reference back is always
+	appreciated. There is no comment section, although feedback is
+	welcome via email.
+
+      </p>
       <ul>
 EOF
 
@@ -44,7 +55,7 @@ while read -r file; do
     post=`cat $file` # get the post title
 
     title=`echo "$post" | head | grep "^#+TITLE:" | cut -b10-`
-    # p1=`echo "$post" | awk NR==2 RS="\n\n"`
+    # p1=`echo "$post" | awk NR==2 RS="\n\n" | pandoc -f org -t html`
 
     datepat="20[0-9][0-9]-[0-9][0-9]-[0-9][0-9] [A-z][a-z][a-z] [0-2][0-4]:[0-5][0-9]"
     modified=`echo "$post" | grep -v \#\+ | grep -oP "$datepat" | tail -n1`
@@ -54,12 +65,17 @@ while read -r file; do
     fi
 
     date=`echo "$post" | head | grep "^#+DATE:" | cut -b9-`
+
+
+    draft=`echo "$post" | head | grep "^#+DRAFT" | wc -l`
+    [ $draft -gt 0 ] && continue
+
     rfcdate=$(echo $date | cut -b2-21)
     rfcdate=$(date -R -d "$rfcdate")
     date=$(echo $date | recode ascii..html)
 
     cat >> index.html <<EOF
-<li><a href="$hname">$date - $htmltitle</a></li>
+<li><a href="$hname">$date - $htmltitle</a><br /></li>
 EOF
 
     cat >> feed.rss <<EOF
