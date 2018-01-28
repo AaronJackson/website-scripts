@@ -19,7 +19,13 @@ fi
 echo "org-mode source:"
 echo
 for f in $(find $SOURCE -name "*.$EXT" | grep -v ".web."); do
-    name=$(basename $f .$EXT)
-    convert $f -resize $MAX_WIDTH $DEST/$name.web.$EXT
-    echo [[$f][$DEST/$name.web.$EXT]]
+    bname=$(basename $f .$EXT )
+    bname=${bname,,}
+    newpath=$DEST${bname}.web.${EXT,,}
+    oldpath=${f,,}
+    if [[ "$f" != "$oldpath" ]]; then
+	mv $f $oldpath
+    fi
+    convert $oldpath -resize $MAX_WIDTH $newpath
+    echo [[file:$oldpath][file:$newpath]]
 done
