@@ -1,0 +1,11 @@
+root=http://aaronsplace.co.uk
+blog_root=blog
+author="Aaron S. Jackson"
+pandoc_flags="--highlight-style haddock"
+
+copyright="2007-$(date +%Y)"
+
+# Optionally, generate an asc file for every html file generated. If
+# you comment this line out, such that gpg_key is not set, nothing
+# will be signed.
+gpg_key=32716A1F

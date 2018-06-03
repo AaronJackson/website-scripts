@@ -1,6 +1,7 @@
 #!/bin/bash
 
-cd ~/public_html/blog/
+source config
+cd $blog_root
 
 listing=`grep ^\#\+FILETAGS\: *.org | sort -r` # get a files and their tags
 
@@ -20,8 +21,8 @@ cat > tags/index.html <<EOF
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Tag Index - Aaron s. Jackson</title>
-    <meta name="author" content="Aaron S. Jackson" />
+    <title>Tag Index - ${author}</title>
+    <meta name="author" content="${author}" />
     <link rel="stylesheet" type="text/css" href="../../style.css" />
     <meta name="viewport" content="width=device-width">
   </head>
@@ -97,11 +98,14 @@ while read -r tag; do
         &bull; <a href="../index.html">Blog Index</a>
         &bull; <a href="../../index.html">Home</a>
       </p>
-      <p class="small">Copyright 2007-$(date +%Y) $author (modified: $(date))</p>
+      <p class="small">Copyright $copyright $author (compiled: $(date))</p>
     </div>
   </body>
 </html>
 EOF
+    if [ ! -z "$gpg_key" ] ; then
+	gpg2 --yes --default-key $gpg_key --detach-sig -o tags/$tag.asc tags/$tag.html
+    fi
 done <<< "$all_tags"
 
 cat >> tags/index.html <<EOF
@@ -111,8 +115,12 @@ cat >> tags/index.html <<EOF
       <p><a href="../index.html">Blog Index</a>
         &bull; <a href="../../index.html">Home</a>
       </p>
-      <p class="small">Copyright 2007-$(date +%Y) $author (modified: $(date))</p>
+      <p class="small">Copyright $copyright $author (compiled: $(date))</p>
     </div>
   </body>
 </html>
 EOF
+
+if [ ! -z "$gpg_key" ] ; then
+    gpg2 --yes --default-key $gpg_key --detach-sig -o tags/index.asc tags/index.html
+fi

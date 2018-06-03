@@ -1,8 +1,7 @@
 #!/bin/bash
 
-cd ~/public_html/$1
-
-author="Aaron S. Jackson"
+source config
+cd $1
 
 while read -r file; do
     if [ -a .$file.md5 ]; then
@@ -16,6 +15,7 @@ while read -r file; do
     fi
 
     hname=`basename "$file" .org `.html # html file name
+    sname=`echo $hname | sed 's/.html$/.asc/'`
     page=`cat $file` # get the post title
 
     title=`echo "$page" | head | grep "#+TITLE:" | cut -b10-`
@@ -28,7 +28,7 @@ while read -r file; do
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>$title - Aaron S. Jackson</title>
+    <title>$title - ${author}</title>
     <meta name="author" content="$author" />
     <link rel="stylesheet" type="text/css" href="$2style.css" />
     <meta name="viewport" content="width=device-width">
@@ -47,10 +47,13 @@ EOF
     </div>
     <div id="postamble">
       <p><a href="$2index.html">&larr; Return Home</a></p>
-      <p class="small">Copyright 2007-$(date +%Y) $author (modified: $(date))</p>
+      <p class="small">Copyright $copyright $author (compiled: $(date))</p>
     </div>
   </body>
 </html>
 EOF
 
+        if [ ! -z "$gpg_key" ] ; then
+	    gpg2 --yes -q --default-key $gpg_key --detach-sig -o "$sname" "$hname"
+	fi
 done <<< "`ls -1 *.org`"

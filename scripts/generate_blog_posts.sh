@@ -1,8 +1,7 @@
 #!/bin/bash
 
-cd ~/public_html/blog/
-
-author="Aaron S. Jackson"
+source config
+cd $blog_root
 
 while read -r file; do
     if [ -a .$file.md5 ]; then
@@ -15,6 +14,7 @@ while read -r file; do
 	md5sum $file > .$file.md5
     fi
     hname=`basename "$file" .org `.html # html file name
+    sname=`echo $hname | sed 's/.html$/.asc/'`
     post=`cat $file` # get the post title
     firstsen=`echo "$post" | grep -ve ^# -e "^$" | \
     		   head -n2 | tr '\n' ' ' | recode ascii..html`
@@ -28,23 +28,23 @@ while read -r file; do
     img=`echo "$post" | head | grep "#+IMG:" | cut -b8-`
     img=${img:=$img_default}
 
-    date="${date//\</\&lt\;}"
-    date="${date//\>/\&gt\;}"
+    date="${date//\</&lt;}"
+    date="${date//\>/&gt;}"
 
     cat > $hname <<EOF
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>$title - Aaron S. Jackson</title>
+    <title>$title - ${author}</title>
     <meta name="author" content="$author" />
     <link rel="stylesheet" type="text/css" href="../style.css" />
     <meta name="viewport" content="width=device-width">
     <meta name="twitter:card" content="summary" />
-    <meta name="twitter:site" content="@Limes102" />
+    <meta name="twitter:site" content="@_asjackson" />
     <meta name="twitter:title" content="$title" />
     <meta name="twitter:description" content="$firstsen" />
-    <meta name="twitter:image" content="https://aaronsplace.co.uk/blog/$img" />
+    <meta name="twitter:image" content="https://${root}/${blog_root}/$img" />
   </head>
   <body>
     <div id="preamble" class="status">
@@ -71,7 +71,6 @@ EOF
     maintag=`echo "$tags" | head -n1`
 
     related=$(grep -l "^\#+FILETAGS: :$maintag:" *.org | grep -v $file)
-    echo "$related" | wc -l
     if [[ $(echo "$related" | wc -l) -gt 0 ]]; then
 	echo "<p>Related posts:</p>" >> $hname
 	echo "<ul>" >> $hname
@@ -99,10 +98,12 @@ EOF
         &bull; <a href="./tags/index.html">Posts by Tag</a>
         &bull; <a href="../index.html">Home</a>
       </p>
-      <p class="small">Copyright 2007-$(date +%Y) $author (modified: $(date))</p>
+      <p class="small">Copyright $copyright $author (compiled: $(date))</p>
     </div>
   </body>
 </html>
 EOF
-
+    if [ ! -z "$gpg_key" ] ; then
+       gpg2 --yes -q --default-key ${gpg_key} --detach-sig -o "$sname" "$hname" 
+    fi
 done <<< "`ls -1r *.org`"
